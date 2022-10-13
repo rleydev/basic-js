@@ -20,15 +20,64 @@ const { NotImplementedError } = require('../extensions/index.js');
  * 
  */
 class VigenereCipheringMachine {
-  encrypt() {
-    throw new NotImplementedError('Not implemented');
-    // remove line with error and write your code here
+
+  constructor(reverse = true) {
+    this.reverse = reverse;
   }
-  decrypt() {
-    throw new NotImplementedError('Not implemented');
-    // remove line with error and write your code here
-  }
-}
+
+  encrypt(message = null, key = null) {
+
+    if (!message || !key) throw new Error(`Incorrect arguments!`);
+    let upperLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    result = '';
+
+    key = key.toUpperCase();
+    message = message.toUpperCase();
+    while (key.length <= message.length) {
+      key += key;
+
+    };
+    for (let i = 0; i < message.length; i++) {
+      let symM = message[i];
+      let symK = key[i];
+      if (symM.match(/[A-Z]/gm)) {
+        let addr = ((upperLetters.length + upperLetters.search(symM) + upperLetters.search(symK)) % upperLetters.length);
+        result += upperLetters[addr % upperLetters.length];
+      } else {
+        result += symM;
+        key = key.slice(0, i) + symM + key.slice(i);
+      }
+    }
+    return this.reverse ? result : result.split('').reverse().join('');
+  };
+  
+  decrypt(message = null, key = null) {
+
+    if (!message || !key) throw new Error(`Incorrect arguments!`);
+    let upperLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let result = '';
+
+    key = key.toUpperCase();
+    message = message.toUpperCase();
+    while (key.length <= message.length) {
+      key += key;
+    };
+
+    for (let i = 0; i < message.length; i++) {
+      let symM = message[i];
+      let symK = key[i];
+      if (symM.match(/[A-Z]/gm)) {
+        let addr = ((upperLetters.length + upperLetters.search(symM) - upperLetters.search(symK)) % upperLetters.length);
+        result += upperLetters[addr % upperLetters.length];
+      } else {
+        result += symM;
+        key = key.slice(0, i) + symM + key.slice(i);
+      }
+    }
+    return this.reverse ? result : result.split('').reverse().join('');
+  };
+
+};
 
 module.exports = {
   VigenereCipheringMachine
